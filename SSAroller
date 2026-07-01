@@ -22,7 +22,7 @@ local SelectedPassives = {}
 
 -- [БЕЗОПАСНОЕ СОЗДАНИЕ GUI]
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "SSA_AUTOROLLER_FINAL"
+ScreenGui.Name = "KlavaKokos_SSA_V1"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -34,49 +34,90 @@ else
     ScreenGui.Parent = PlayerGui
 end
 
+-- Главный фрейм (Премиум черный)
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 500, 0, 550)
 MainFrame.Position = UDim2.new(0.5, -250, 0.5, -275)
-MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = MainFrame
 
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(45, 45, 45)
+MainStroke.Thickness = 1
+MainStroke.Parent = MainFrame
+
+-- Заголовок панели
 local TitleBar = Instance.new("Frame")
 TitleBar.Size = UDim2.new(1, 0, 0, 35)
-TitleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TitleBar.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
 TitleBar.Parent = MainFrame
 
 local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 8)
+TitleCorner.CornerRadius = UDim.new(0, 10)
 TitleCorner.Parent = TitleBar
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -40, 1, 0)
-Title.Text = "  SSA AUTO-ROLLER PRO v5.0"
-Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Size = UDim2.new(1, -80, 1, 0)
+Title.Text = "   KlavaKokosINT | SSA ROLLER V1.0"
+Title.TextColor3 = Color3.fromRGB(240, 240, 240)
 Title.BackgroundTransparency = 1
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 16
+Title.TextSize = 14
 Title.Parent = TitleBar
 
+-- [КНОПКИ УПРАВЛЕНИЯ ОКНОМ (Круглые)]
+-- Желтая кнопка (Свернуть)
+local MinBtn = Instance.new("TextButton")
+MinBtn.Size = UDim2.new(0, 13, 0, 13)
+MinBtn.Position = UDim2.new(1, -45, 0, 11)
+MinBtn.Text = ""
+MinBtn.BackgroundColor3 = Color3.fromRGB(255, 190, 46) -- Желтый маковский
+MinBtn.Parent = TitleBar
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(1, 0)
+MinCorner.Parent = MinBtn
+
+-- Красная кнопка (Закрыть)
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-CloseBtn.Position = UDim2.new(1, -32, 0, 2)
-CloseBtn.Text = "X"
-CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.TextColor3 = Color3.new(1, 1, 1)
-CloseBtn.Font = Enum.Font.SourceSansBold
-CloseBtn.TextSize = 16
+CloseBtn.Size = UDim2.new(0, 13, 0, 13)
+CloseBtn.Position = UDim2.new(1, -22, 0, 11)
+CloseBtn.Text = ""
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 95, 85) -- Красный маковский
 CloseBtn.Parent = TitleBar
 
 local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.CornerRadius = UDim.new(1, 0)
 CloseCorner.Parent = CloseBtn
 
+-- Контейнер для скрытия основного содержимого при сворачивании
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, 0, 1, -35)
+ContentFrame.Position = UDim2.new(0, 0, 0, 35)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
+
+-- Логика сворачивания окна (Желтый круг)
+local minimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        MainFrame:TweenSize(UDim2.new(0, 500, 0, 35), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+        ContentFrame.Visible = false
+    else
+        MainFrame:TweenSize(UDim2.new(0, 500, 0, 550), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+        task.wait(0.1)
+        ContentFrame.Visible = true
+    end
+end)
+
+-- Логика закрытия (Красный круг)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 -- Перетаскивание меню
@@ -94,40 +135,51 @@ UIS.InputChanged:Connect(function(input)
 end)
 UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
 
--- Списки настроек
+-- Списки настроек (ЧБ СТИЛЬ)
 local LeftContainer = Instance.new("ScrollingFrame")
-LeftContainer.Size = UDim2.new(0.45, 0, 0.5, 0)
-LeftContainer.Position = UDim2.new(0.02, 0, 0.09, 0)
+LeftContainer.Size = UDim2.new(0.46, 0, 0.52, 0)
+LeftContainer.Position = UDim2.new(0.02, 0, 0.03, 0)
 LeftContainer.BackgroundTransparency = 1
 LeftContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-LeftContainer.ScrollBarThickness = 4
-LeftContainer.Parent = MainFrame
+LeftContainer.ScrollBarThickness = 2
+LeftContainer.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+LeftContainer.Parent = ContentFrame
 
 local LeftList = Instance.new("UIListLayout")
-LeftList.Padding = UDim.new(0, 5)
+LeftList.Padding = UDim.new(0, 6)
 LeftList.Parent = LeftContainer
 
 local RightContainer = Instance.new("ScrollingFrame")
-RightContainer.Size = UDim2.new(0.45, 0, 0.5, 0)
-RightContainer.Position = UDim2.new(0.53, 0, 0.09, 0)
+RightContainer.Size = UDim2.new(0.46, 0, 0.52, 0)
+RightContainer.Position = UDim2.new(0.52, 0, 0.03, 0)
 RightContainer.BackgroundTransparency = 1
 RightContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-RightContainer.ScrollBarThickness = 4
-RightContainer.Parent = MainFrame
+RightContainer.ScrollBarThickness = 2
+RightContainer.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+RightContainer.Parent = ContentFrame
 
 local RightList = Instance.new("UIListLayout")
-RightList.Padding = UDim.new(0, 5)
+RightList.Padding = UDim.new(0, 6)
 RightList.Parent = RightContainer
 
--- Консоль
+-- Консоль логов (Стильный Full-Black)
 local ConsoleFrame = Instance.new("ScrollingFrame")
-ConsoleFrame.Size = UDim2.new(0.96, 0, 0.28, 0)
-ConsoleFrame.Position = UDim2.new(0.02, 0, 0.61, 0)
-ConsoleFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+ConsoleFrame.Size = UDim2.new(0.96, 0, 0.26, 0)
+ConsoleFrame.Position = UDim2.new(0.02, 0, 0.58, 0)
+ConsoleFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 ConsoleFrame.BorderSizePixel = 0
 ConsoleFrame.AutomaticCanvasSize = Enum.AutomaticSize.XY
-ConsoleFrame.ScrollBarThickness = 6
-ConsoleFrame.Parent = MainFrame
+ConsoleFrame.ScrollBarThickness = 4
+ConsoleFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 60)
+ConsoleFrame.Parent = ContentFrame
+
+local ConsoleCorner = Instance.new("UICorner")
+ConsoleCorner.CornerRadius = UDim.new(0, 6)
+ConsoleCorner.Parent = ConsoleFrame
+
+local ConsoleStroke = Instance.new("UIStroke")
+ConsoleStroke.Color = Color3.fromRGB(35, 35, 35)
+ConsoleStroke.Parent = ConsoleFrame
 
 local ConsoleList = Instance.new("UIListLayout")
 ConsoleList.Parent = ConsoleFrame
@@ -135,8 +187,8 @@ ConsoleList.Parent = ConsoleFrame
 local function log(text)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(0, 2000, 0, 18)
-    lbl.Text = "["..os.date("%H:%M:%S").."] " .. text
-    lbl.TextColor3 = Color3.new(1, 1, 1)
+    lbl.Text = " ["..os.date("%H:%M:%S").."] " .. text
+    lbl.TextColor3 = Color3.fromRGB(180, 180, 180)
     lbl.BackgroundTransparency = 1
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.TextSize = 12
@@ -145,24 +197,30 @@ local function log(text)
     ConsoleFrame.CanvasPosition = Vector2.new(0, 99999)
 end
 
--- Инициализация кнопок пассивок
+-- Инициализация кнопок пассивок (Инверсия при клике)
 for _, name in pairs(AllPassives) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -5, 0, 30)
+    btn.Size = UDim2.new(1, -5, 0, 32)
     btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Font = Enum.Font.SourceSans
-    btn.TextSize = 14
+    btn.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 13
     btn.Parent = LeftContainer
     
     local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 4)
+    btnCorner.CornerRadius = UDim.new(0, 6)
     btnCorner.Parent = btn
+    
+    local btnStroke = Instance.new("UIStroke")
+    btnStroke.Color = Color3.fromRGB(45, 45, 45)
+    btnStroke.Parent = btn
 
     btn.MouseButton1Click:Connect(function()
         SelectedPassives[name] = not SelectedPassives[name]
-        btn.BackgroundColor3 = SelectedPassives[name] and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(60, 60, 60)
+        -- Идеальный ЧБ Тоггл
+        btn.BackgroundColor3 = SelectedPassives[name] and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(26, 26, 26)
+        btn.TextColor3 = SelectedPassives[name] and Color3.fromRGB(15, 15, 15) or Color3.fromRGB(200, 200, 200)
         log("Пассивка " .. name .. (SelectedPassives[name] and ": ВКЛ" or ": ВЫКЛ"))
     end)
 end
@@ -170,16 +228,16 @@ end
 -- Инициализация полей статов
 for stat, _ in pairs(StatRequirements) do
     local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, -5, 0, 30)
+    container.Size = UDim2.new(1, -5, 0, 32)
     container.BackgroundTransparency = 1
     container.Parent = RightContainer
     
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(0.6, 0, 1, 0)
-    lbl.Text = stat
+    lbl.Text = "  " .. stat
     lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = Color3.new(1, 1, 1)
-    lbl.TextSize = 12
+    lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+    lbl.TextSize = 13
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.Font = Enum.Font.SourceSans
     lbl.Parent = container
@@ -188,15 +246,19 @@ for stat, _ in pairs(StatRequirements) do
     input.Size = UDim2.new(0.35, 0, 0.8, 0)
     input.Position = UDim2.new(0.65, 0, 0.1, 0)
     input.Text = "0"
-    input.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    input.TextColor3 = Color3.new(1, 1, 1)
-    input.Font = Enum.Font.SourceSans
-    input.TextSize = 12
+    input.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+    input.TextColor3 = Color3.fromRGB(255, 255, 255)
+    input.Font = Enum.Font.SourceSansBold
+    input.TextSize = 13
     input.Parent = container
     
     local inputCorner = Instance.new("UICorner")
-    inputCorner.CornerRadius = UDim.new(0, 4)
+    inputCorner.CornerRadius = UDim.new(0, 6)
     inputCorner.Parent = input
+    
+    local inputStroke = Instance.new("UIStroke")
+    inputStroke.Color = Color3.fromRGB(45, 45, 45)
+    inputStroke.Parent = input
     
     input.FocusLost:Connect(function() 
         StatRequirements[stat] = tonumber(input.Text) or 0 
@@ -204,26 +266,28 @@ for stat, _ in pairs(StatRequirements) do
     end)
 end
 
--- Кнопка Старт/Стоп
+-- Главная Стильная Кнопка Старт/Стоп
 local StartBtn = Instance.new("TextButton")
-StartBtn.Size = UDim2.new(0.96, 0, 0.08, 0)
-StartBtn.Position = UDim2.new(0.02, 0, 0.90, 0)
+StartBtn.Size = UDim2.new(0.96, 0, 0.1, 0)
+StartBtn.Position = UDim2.new(0.02, 0, 0.87, 0)
 StartBtn.Text = "START ROLL"
-StartBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-StartBtn.TextColor3 = Color3.new(1, 1, 1)
+StartBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+StartBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
 StartBtn.Font = Enum.Font.SourceSansBold
-StartBtn.TextSize = 16
-StartBtn.Parent = MainFrame
+StartBtn.TextSize = 15
+StartBtn.Parent = ContentFrame
 
 local StartCorner = Instance.new("UICorner")
-StartCorner.CornerRadius = UDim.new(0, 6)
+StartCorner.CornerRadius = UDim.new(0, 8)
 StartCorner.Parent = StartBtn
 
 local running = false
 StartBtn.MouseButton1Click:Connect(function() 
     running = not running 
-    StartBtn.Text = running and "STOP" or "START ROLL"
-    StartBtn.BackgroundColor3 = running and Color3.fromRGB(150, 0, 0) or Color3.fromRGB(0, 150, 0)
+    StartBtn.Text = running and "STOP SYSTEM" or "START ROLL"
+    -- Инверсия темы при работе роллера
+    StartBtn.BackgroundColor3 = running and Color3.fromRGB(40, 40, 40) or Color3.fromRGB(255, 255, 255)
+    StartBtn.TextColor3 = running and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(15, 15, 15)
     log(running and "Роллер запущен!" or "Роллер остановлен.")
 end)
 
@@ -261,7 +325,7 @@ end
 
 -- [ОСНОВНОЙ СМАРТ-ПОТОК]
 task.spawn(function()
-    log("Система готова. Настройте критерии и нажмите START.")
+    log("KlavaKokos V1.0 загружен успешно.")
     while true do
         task.wait(0.4)
         if not running then continue end
@@ -278,40 +342,42 @@ task.spawn(function()
         local isQVisible = qBox and qBox.Visible
         local isDialogOpen = isMsgVisible or isQVisible
         
-        -- ШАГ 1: Если открыто диалоговое окно ПОВЕРХ окна амулета (Финальное: "Equip the new amulet?")
+        -- ШАГ 1: Если открыто диалоговое окно ПОВЕРХ окна амулета (Финальное)
         if isAmuletOpen and isDialogOpen then
             if isMsgVisible then
                 local yesBtn = msgBox:FindFirstChild("Box") and msgBox.Box:FindFirstChild("YesButton")
                 if yesBtn and yesBtn.Visible then
-                    log("Финал: Успешно экипирую новый идеальный амулет! Завершаю.")
+                    log("Финал: Успешно экипирую новый идеальный амулет!")
                     click(yesBtn)
                     running = false
                     StartBtn.Text = "START ROLL"
-                    StartBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+                    StartBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    StartBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
                     task.wait(0.5)
                 end
             elseif isQVisible then
                 local yesBtn = qBox:FindFirstChild("Box") and qBox.Box:FindFirstChild("YesButton")
                 if yesBtn and yesBtn.Visible then
-                    log("Финал: Успешно экипирую новый идеальный амулет! Завершаю.")
+                    log("Финал: Успешно экипирую новый идеальный амулет!")
                     click(yesBtn)
                     running = false
                     StartBtn.Text = "START ROLL"
-                    StartBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+                    StartBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    StartBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
                     task.wait(0.5)
                 end
             end
             continue
         end
         
-        -- ШАГ 2: Диалоговое окно БЕЗ амулета (Стартовое: "Spend 500 billion honey?")
+        -- ШАГ 2: Диалоговое окно БЕЗ амулета (Стартовое подтверждение траты меда)
         if isDialogOpen and not isAmuletOpen then
             if isMsgVisible then
                 local yesBtn = msgBox:FindFirstChild("Box") and msgBox.Box:FindFirstChild("YesButton")
-                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла (MessageBox)"); click(yesBtn) task.wait(0.5) end
+                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла"); click(yesBtn) task.wait(0.5) end
             elseif isQVisible then
                 local yesBtn = qBox:FindFirstChild("Box") and qBox.Box:FindFirstChild("YesButton")
-                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла (QuestionBox)"); click(yesBtn) task.wait(0.5) end
+                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла"); click(yesBtn) task.wait(0.5) end
             end
             continue
         end
@@ -332,7 +398,6 @@ task.spawn(function()
             local amuletFrame = rewards:FindFirstChild("AmuletFrame")
             local infoNew = amuletFrame and amuletFrame:FindFirstChild("InfoNew")
             
-            -- Точные пути подтверждения и отмены
             local acceptBtn = rewards:FindFirstChild("YesButton")
             local declineBtn = rewards:FindFirstChild("NoButton") or rewards:FindFirstChild("BoxColorRed")
             
@@ -366,7 +431,7 @@ task.spawn(function()
                 if passed then
                     log("УСПЕХ! Амулет подходит. Нажимаю Claim. Жду финальное окно...")
                     click(acceptBtn)
-                    task.wait(0.5) -- Ждем появления финального диалога подтверждения
+                    task.wait(0.5)
                 else
                     log("Статы плохие. Пропускаю ролл...")
                     click(declineBtn)
