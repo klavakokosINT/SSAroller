@@ -20,6 +20,10 @@ local StatRequirements = {
 local AllPassives = {"Pop Star", "Scorch Star", "Gummy Star", "Star Saw", "Shower Star", "Guiding Star"}
 local SelectedPassives = {}
 
+-- Переменные скорости (По умолчанию стоит Режим 2)
+local currentLoopWait = 0.35
+local currentActionWait = 0.4
+
 -- [БЕЗОПАСНОЕ СОЗДАНИЕ GUI]
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "KlavaKokos_SSA_V1"
@@ -71,8 +75,7 @@ Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 14
 Title.Parent = TitleBar
 
--- [КНОПКИ УПРАВЛЕНИЯ ОКНОМ (Круглые)]
--- Желтая кнопка (Свернуть)
+-- [КНОПКИ УПРАВЛЕНИЯ ОКНОМ]
 local MinBtn = Instance.new("TextButton")
 MinBtn.Size = UDim2.new(0, 13, 0, 13)
 MinBtn.Position = UDim2.new(1, -45, 0, 11)
@@ -84,7 +87,6 @@ local MinCorner = Instance.new("UICorner")
 MinCorner.CornerRadius = UDim.new(1, 0)
 MinCorner.Parent = MinBtn
 
--- Красная кнопка (Закрыть)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 13, 0, 13)
 CloseBtn.Position = UDim2.new(1, -22, 0, 11)
@@ -96,14 +98,14 @@ local CloseCorner = Instance.new("UICorner")
 CloseCorner.CornerRadius = UDim.new(1, 0)
 CloseCorner.Parent = CloseBtn
 
--- Контейнер для скрытия основного содержимого при сворачивании
+-- Контейнер содержимого
 local ContentFrame = Instance.new("Frame")
 ContentFrame.Size = UDim2.new(1, 0, 1, -35)
 ContentFrame.Position = UDim2.new(0, 0, 0, 35)
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.Parent = MainFrame
 
--- Логика сворачивания окна (Желтый круг)
+-- Логика сворачивания окна
 local minimized = false
 MinBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
@@ -117,10 +119,9 @@ MinBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Логика закрытия (Красный круг)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Перетаскивание меню
+-- Перетаскивание
 local dragging, dragStart, startPos
 TitleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -135,10 +136,10 @@ UIS.InputChanged:Connect(function(input)
 end)
 UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
 
--- Списки настроек (ЧБ СТИЛЬ)
+-- Списки настроек (Точные оффсеты)
 local LeftContainer = Instance.new("ScrollingFrame")
-LeftContainer.Size = UDim2.new(0.46, 0, 0.52, 0)
-LeftContainer.Position = UDim2.new(0.02, 0, 0.03, 0)
+LeftContainer.Size = UDim2.new(0, 230, 0, 240)
+LeftContainer.Position = UDim2.new(0, 10, 0, 10)
 LeftContainer.BackgroundTransparency = 1
 LeftContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
 LeftContainer.ScrollBarThickness = 2
@@ -150,8 +151,8 @@ LeftList.Padding = UDim.new(0, 6)
 LeftList.Parent = LeftContainer
 
 local RightContainer = Instance.new("ScrollingFrame")
-RightContainer.Size = UDim2.new(0.46, 0, 0.52, 0)
-RightContainer.Position = UDim2.new(0.52, 0, 0.03, 0)
+RightContainer.Size = UDim2.new(0, 230, 0, 240)
+RightContainer.Position = UDim2.new(0, 260, 0, 10)
 RightContainer.BackgroundTransparency = 1
 RightContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
 RightContainer.ScrollBarThickness = 2
@@ -162,10 +163,10 @@ local RightList = Instance.new("UIListLayout")
 RightList.Padding = UDim.new(0, 6)
 RightList.Parent = RightContainer
 
--- Консоль логов (Стильный Full-Black)
+-- Консоль
 local ConsoleFrame = Instance.new("ScrollingFrame")
-ConsoleFrame.Size = UDim2.new(0.96, 0, 0.26, 0)
-ConsoleFrame.Position = UDim2.new(0.02, 0, 0.58, 0)
+ConsoleFrame.Size = UDim2.new(0, 480, 0, 130)
+ConsoleFrame.Position = UDim2.new(0, 10, 0, 260)
 ConsoleFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 ConsoleFrame.BorderSizePixel = 0
 ConsoleFrame.AutomaticCanvasSize = Enum.AutomaticSize.XY
@@ -197,7 +198,87 @@ local function log(text)
     ConsoleFrame.CanvasPosition = Vector2.new(0, 99999)
 end
 
--- Инициализация кнопок пассивок (Инверсия при клике)
+-- [БЛОК ВЫБОРА СКОРОСТИ (NEW)]
+local SpeedFrame = Instance.new("Frame")
+SpeedFrame.Size = UDim2.new(0, 480, 0, 35)
+SpeedFrame.Position = UDim2.new(0, 10, 0, 405)
+SpeedFrame.BackgroundTransparency = 1
+SpeedFrame.Parent = ContentFrame
+
+local SpeedLabel = Instance.new("TextLabel")
+SpeedLabel.Size = UDim2.new(0, 100, 1, 0)
+SpeedLabel.Text = "SPEED MODE:"
+SpeedLabel.TextColor3 = Color3.fromRGB(160, 160, 160)
+SpeedLabel.Font = Enum.Font.SourceSansBold
+SpeedLabel.TextSize = 13
+SpeedLabel.TextXAlignment = Enum.TextXAlignment.Left
+SpeedLabel.BackgroundTransparency = 1
+SpeedLabel.Parent = SpeedFrame
+
+local SpeedButtonsFrame = Instance.new("Frame")
+SpeedButtonsFrame.Size = UDim2.new(0, 380, 1, 0)
+SpeedButtonsFrame.Position = UDim2.new(0, 100, 0, 0)
+SpeedButtonsFrame.BackgroundTransparency = 1
+SpeedButtonsFrame.Parent = SpeedFrame
+
+local SpeedListLayout = Instance.new("UIListLayout")
+SpeedListLayout.FillDirection = Enum.FillDirection.Horizontal
+SpeedListLayout.Padding = UDim.new(0, 8)
+SpeedListLayout.Parent = SpeedButtonsFrame
+
+local speedsData = {
+    {id = 1, name = "1 (SLOW)", loop = 0.6, action = 0.7},
+    {id = 2, name = "2 (NORM)", loop = 0.35, action = 0.4},
+    {id = 3, name = "3 (FAST)", loop = 0.15, action = 0.22}
+}
+local speedBtnsTrack = {}
+
+for _, data in pairs(speedsData) do
+    local sBtn = Instance.new("TextButton")
+    sBtn.Size = UDim2.new(0, 115, 0, 30)
+    sBtn.Text = data.name
+    sBtn.Font = Enum.Font.SourceSansBold
+    sBtn.TextSize = 12
+    sBtn.Parent = SpeedButtonsFrame
+    
+    local sCorner = Instance.new("UICorner")
+    sCorner.CornerRadius = UDim.new(0, 6)
+    sCorner.Parent = sBtn
+    
+    local sStroke = Instance.new("UIStroke")
+    sStroke.Color = Color3.fromRGB(45, 45, 45)
+    sStroke.Parent = sBtn
+    
+    -- Подсветка по умолчанию для режима 2
+    if data.id == 2 then
+        sBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        sBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
+    else
+        sBtn.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+        sBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    end
+    
+    speedBtnsTrack[data.id] = sBtn
+    
+    sBtn.MouseButton1Click:Connect(function()
+        currentLoopWait = data.loop
+        currentActionWait = data.action
+        log("Установлен режим скорости: " .. data.name)
+        
+        -- Сброс остальных кнопок скорости
+        for id, btn in pairs(speedBtnsTrack) do
+            if id == data.id then
+                btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                btn.TextColor3 = Color3.fromRGB(15, 15, 15)
+            else
+                btn.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+                btn.TextColor3 = Color3.fromRGB(180, 180, 180)
+            end
+        end
+    end)
+end
+
+-- Инициализация кнопок пассивок
 for _, name in pairs(AllPassives) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -5, 0, 32)
@@ -218,7 +299,6 @@ for _, name in pairs(AllPassives) do
 
     btn.MouseButton1Click:Connect(function()
         SelectedPassives[name] = not SelectedPassives[name]
-        -- Идеальный ЧБ Тоггл
         btn.BackgroundColor3 = SelectedPassives[name] and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(26, 26, 26)
         btn.TextColor3 = SelectedPassives[name] and Color3.fromRGB(15, 15, 15) or Color3.fromRGB(200, 200, 200)
         log("Пассивка " .. name .. (SelectedPassives[name] and ": ВКЛ" or ": ВЫКЛ"))
@@ -266,10 +346,10 @@ for stat, _ in pairs(StatRequirements) do
     end)
 end
 
--- Главная Стильная Кнопка Старт/Стоп
+-- Главная Кнопка Старт/Стоп
 local StartBtn = Instance.new("TextButton")
-StartBtn.Size = UDim2.new(0.96, 0, 0.1, 0)
-StartBtn.Position = UDim2.new(0.02, 0, 0.87, 0)
+StartBtn.Size = UDim2.new(0, 480, 0, 45)
+StartBtn.Position = UDim2.new(0, 10, 0, 455)
 StartBtn.Text = "START ROLL"
 StartBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 StartBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
@@ -285,13 +365,11 @@ local running = false
 StartBtn.MouseButton1Click:Connect(function() 
     running = not running 
     StartBtn.Text = running and "STOP SYSTEM" or "START ROLL"
-    -- Инверсия темы при работе роллера
     StartBtn.BackgroundColor3 = running and Color3.fromRGB(40, 40, 40) or Color3.fromRGB(255, 255, 255)
     StartBtn.TextColor3 = running and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(15, 15, 15)
     log(running and "Роллер запущен!" or "Роллер остановлен.")
 end)
 
--- Исправленный точный кликер через VirtualInputManager
 local function click(obj)
     if obj and obj.Visible and obj.AbsoluteSize.X > 0 then
         local p = obj.AbsolutePosition + obj.AbsoluteSize/2
@@ -300,12 +378,11 @@ local function click(obj)
         local targetY = p.Y + inset.Y
         
         VIM:SendMouseButtonEvent(targetX, targetY, 0, true, game, 1)
-        task.wait(0.05)
+        task.wait(0.04)
         VIM:SendMouseButtonEvent(targetX, targetY, 0, false, game, 1)
     end
 end
 
--- Парсер значений статов из текста
 local function getStatValueFromText(text, statName)
     for line in string.gmatch(text, "[^\r\n]+") do
         if statName == "Pollen" then
@@ -323,11 +400,11 @@ local function getStatValueFromText(text, statName)
     return 0
 end
 
--- [ОСНОВНОЙ СМАРТ-ПОТОК]
+-- [ОСНОВНОЙ ДИНАМИЧЕСКИЙ ПОТОК]
 task.spawn(function()
     log("KlavaKokos V1.0 загружен успешно.")
     while true do
-        task.wait(0.4)
+        task.wait(currentLoopWait) -- Скорость цикла зависит от настройки
         if not running then continue end
         
         local gameGui = PlayerGui:FindFirstChild("ScreenGui")
@@ -342,7 +419,7 @@ task.spawn(function()
         local isQVisible = qBox and qBox.Visible
         local isDialogOpen = isMsgVisible or isQVisible
         
-        -- ШАГ 1: Если открыто диалоговое окно ПОВЕРХ окна амулета (Финальное)
+        -- ШАГ 1: Финальное диалоговое окно ПОВЕРХ окна амулета
         if isAmuletOpen and isDialogOpen then
             if isMsgVisible then
                 local yesBtn = msgBox:FindFirstChild("Box") and msgBox.Box:FindFirstChild("YesButton")
@@ -353,7 +430,7 @@ task.spawn(function()
                     StartBtn.Text = "START ROLL"
                     StartBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                     StartBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
-                    task.wait(0.5)
+                    task.wait(currentActionWait)
                 end
             elseif isQVisible then
                 local yesBtn = qBox:FindFirstChild("Box") and qBox.Box:FindFirstChild("YesButton")
@@ -364,7 +441,7 @@ task.spawn(function()
                     StartBtn.Text = "START ROLL"
                     StartBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                     StartBtn.TextColor3 = Color3.fromRGB(15, 15, 15)
-                    task.wait(0.5)
+                    task.wait(currentActionWait)
                 end
             end
             continue
@@ -374,26 +451,26 @@ task.spawn(function()
         if isDialogOpen and not isAmuletOpen then
             if isMsgVisible then
                 local yesBtn = msgBox:FindFirstChild("Box") and msgBox.Box:FindFirstChild("YesButton")
-                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла"); click(yesBtn) task.wait(0.5) end
+                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла"); click(yesBtn) task.wait(currentActionWait) end
             elseif isQVisible then
                 local yesBtn = qBox:FindFirstChild("Box") and qBox.Box:FindFirstChild("YesButton")
-                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла"); click(yesBtn) task.wait(0.5) end
+                if yesBtn and yesBtn.Visible then log("Старт: Подтверждаю покупку ролла"); click(yesBtn) task.wait(currentActionWait) end
             end
             continue
         end
         
-        -- ШАГ 3: Ничего не открыто, нажимаем кнопку генерации
+        -- ШАГ 3: Ничего не открыто, нажимаем ActivateButton
         if not isAmuletOpen and not isDialogOpen then
             local activateBtn = gameGui:FindFirstChild("ActivateButton")
             if activateBtn and activateBtn.Visible then
                 log("Клик по ActivateButton (Запуск ролла)")
                 click(activateBtn)
-                task.wait(0.5)
+                task.wait(currentActionWait)
             end
             continue
         end
         
-        -- ШАГ 4: Открыто только окно статов амулета, проводим сверку критериев
+        -- ШАГ 4: Сверка критериев амулета
         if isAmuletOpen and not isDialogOpen then
             local amuletFrame = rewards:FindFirstChild("AmuletFrame")
             local infoNew = amuletFrame and amuletFrame:FindFirstChild("InfoNew")
@@ -404,7 +481,6 @@ task.spawn(function()
             if infoNew and infoNew.Text ~= "" and infoNew.Text ~= "Label" and acceptBtn and acceptBtn.Visible then
                 local passed = true
                 
-                -- Проверка обычных статов
                 for stat, minVal in pairs(StatRequirements) do
                     if minVal > 0 then
                         local rolledValue = getStatValueFromText(infoNew.Text, stat)
@@ -416,7 +492,6 @@ task.spawn(function()
                     end
                 end
                 
-                -- Проверка пассивок
                 if passed then
                     for name, enabled in pairs(SelectedPassives) do
                         if enabled and not infoNew.Text:find(name) then 
@@ -427,15 +502,14 @@ task.spawn(function()
                     end
                 end
                 
-                -- Решение по амулету
                 if passed then
                     log("УСПЕХ! Амулет подходит. Нажимаю Claim. Жду финальное окно...")
                     click(acceptBtn)
-                    task.wait(0.5)
+                    task.wait(currentActionWait)
                 else
                     log("Статы плохие. Пропускаю ролл...")
                     click(declineBtn)
-                    task.wait(0.8)
+                    task.wait(currentActionWait + 0.2) -- Небольшой безопасный зазор на закрытие Gui
                 end
             end
         end
